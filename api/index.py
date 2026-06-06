@@ -74,8 +74,19 @@ async def options_handler():
 
 def p95(values):
     values = sorted(values)
-    idx = math.ceil(0.95 * len(values)) - 1
-    return values[idx]
+    n = len(values)
+
+    if n == 1:
+        return values[0]
+
+    pos = 0.95 * (n - 1)
+
+    lower = int(pos)
+    upper = min(lower + 1, n - 1)
+
+    weight = pos - lower
+
+    return values[lower] + weight * (values[upper] - values[lower])
 
 @app.post("/api/latency")
 async def latency(body: dict):
