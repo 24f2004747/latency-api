@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import math
 
 app = FastAPI()
@@ -7,7 +8,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -53,6 +54,17 @@ DATA = [
     {"region":"amer","latency_ms":165.39,"uptime_pct":97.819},
 ]
 
+@app.options("/api/latency")
+async def options_latency():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
+
 def p95(values):
     values = sorted(values)
     idx = math.ceil(0.95 * len(values)) - 1
@@ -78,4 +90,9 @@ async def latency(body: dict):
             "breaches": sum(1 for x in latencies if x > threshold)
         }
 
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "*"
+        }
+    )
