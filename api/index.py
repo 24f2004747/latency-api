@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import math
 
 app = FastAPI()
@@ -14,7 +13,7 @@ app.add_middleware(
 )
 
 @app.middleware("http")
-async def add_cors_headers(request, call_next):
+async def cors_middleware(request, call_next):
     response = await call_next(request)
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
@@ -64,14 +63,7 @@ DATA = [
 
 @app.options("/api/latency")
 async def latency_options():
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*"
-        }
-    )
+    return {}
 
 def p95(values):
     values = sorted(values)
@@ -98,9 +90,4 @@ async def latency(body: dict):
             "breaches": sum(1 for x in latencies if x > threshold)
         }
 
-    return JSONResponse(
-        content=result,
-        headers={
-            "Access-Control-Allow-Origin": "*"
-        }
-    )
+    return result
