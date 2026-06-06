@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import math
@@ -12,6 +12,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
 
 DATA = [
     {"region":"apac","latency_ms":175.92,"uptime_pct":98.655},
@@ -55,7 +63,7 @@ DATA = [
 ]
 
 @app.options("/api/latency")
-async def options_latency():
+async def latency_options():
     return JSONResponse(
         content={},
         headers={
