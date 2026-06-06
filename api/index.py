@@ -97,4 +97,7 @@ async def latency(body: dict):
             "breaches": sum(1 for x in latencies if x > threshold)
         }
 
-    return JSONResponse(content=result, headers=CORS_HEADERS)
+    return JSONResponse(
+    content={"regions": result},
+    headers=CORS_HEADERS
+)
